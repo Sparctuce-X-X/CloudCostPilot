@@ -1,0 +1,52 @@
+# .github/workflows/test.yml
+# Workflow CI : lance les tests Python et le linter à chaque push/PR.
+# Gratuit pour les repos publics (2000 min/mois pour les repos privés).
+
+name: Tests & Lint
+
+# Quand déclencher ce workflow
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    # Machine virtuelle Ubuntu fournie gratuitement par GitHub
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Récupérer le code du repo
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Installer Python 3.11 (même version que nos Lambdas)
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # 3. Cache pip — évite de retélécharger les dépendances à chaque run
+      # Économise ~30s par run. Le cache est invalidé si requirements change.
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements*.txt') }}
+          restore-keys: ${{ runner.os }}-pip-
+
+      # 4. Installer les dépendances
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+
+      # 5. Linter ruff — vérifie le style et les erreurs courantes
+      # ruff est 100x plus rapide que flake8/pylint (écrit en Rust)
+      - name: Lint with ruff
+        run: ruff check lambdas/ api/ tests/
+
+      # 6. Lancer les tests
+      - name: Run tests
+        run: python -m pytest tests/ -v

@@ -1,0 +1,58 @@
+# .github/workflows/security.yml
+# Workflow sécurité : scan le code Python (bandit) et Terraform (checkov).
+# Détecte les failles AVANT qu'elles arrivent en prod.
+
+name: Security Scan
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main]
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install security tools
+        run: pip install bandit checkov
+
+      # Bandit — analyse statique de sécurité pour Python
+      # Détecte : hardcoded passwords, SQL injection, utilisation de eval(),
+      # subprocess avec shell=True, etc.
+      # -r = récursif, -ll = seulement les HIGH et MEDIUM severity
+      - name: Bandit (Python security)
+        run: bandit -r lambdas/ api/ -ll --format json --output bandit-report.json || true
+
+      - name: Show Bandit results
+        if: always()
+        run: |
+          if [ -f bandit-report.json ]; then
+            python -c "
+          import json
+          with open('bandit-report.json') as f:
+              data = json.load(f)
+          results = data.get('results', [])
+          if results:
+              print(f'⚠️  {len(results)} issue(s) found:')
+              for r in results:
+                  print(f'  [{r[\"issue_severity\"]}] {r[\"issue_text\"]} in {r[\"filename\"]}:{r[\"line_number\"]}')
+          else:
+              print('✅ No security issues found')
+          "
+          fi
+
+      # Checkov — analyse les fichiers Terraform pour les mauvaises pratiques
+      # Détecte : buckets S3 sans encryption, IAM policies trop permissives,
+      # DynamoDB sans encryption at rest, etc.
+      - name: Checkov (Terraform security)
+        run: checkov -d infra/ --framework terraform --quiet --compact || true
