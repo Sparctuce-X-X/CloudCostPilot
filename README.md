@@ -5,6 +5,8 @@
 **Stack** : AWS Lambda · Terraform · Python 3.11 · DynamoDB · API Gateway · Next.js · GitHub Actions
 **Coût de fonctionnement** : < $1 / mois · **Latence API** : < 100ms · **Tests** : 11 · **CI/CD** : automatisée
 
+![CloudCostPilot Dashboard](frontend/public/dashboard-preview.png)
+
 ---
 
 ## Pourquoi ce projet
@@ -185,4 +187,4 @@ CloudCostPilot/
 
 Ce projet est ma façon de prouver que je ne connais pas seulement la théorie du cloud AWS mais que je sais aussi **concevoir, implémenter, tester, déployer et industrialiser** une solution complète — le tout en restant sous $1 / mois grâce aux bonnes pratiques FinOps que l'outil lui-même applique.
 
-**Contact** : dmnqhuang@gmail.com
+**Contact** : dominique@dominique-huang.fr
