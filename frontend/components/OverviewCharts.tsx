@@ -5,7 +5,7 @@ import {
   PieChart, Pie, Cell, Legend,
 } from "recharts";
 
-const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899"];
+const COLORS = ["#6366F1", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6", "#EC4899"];
 
 interface Props {
   dailyCosts: { date: string; cost: number }[];
@@ -15,28 +15,41 @@ interface Props {
 export default function OverviewCharts({ dailyCosts, teamData }: Props) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      {/* Line chart — coûts par jour */}
-      <div className="bg-white rounded-lg shadow p-6 border border-gray-200">
-        <h2 className="text-lg font-semibold mb-4">Coûts journaliers</h2>
-        <ResponsiveContainer width="100%" height={300}>
+      <div className="bg-white rounded-xl p-6 border border-[#E0E7FF]">
+        <h2 className="text-lg font-semibold text-[#1E1B4B] mb-1">Coûts journaliers</h2>
+        <p className="text-sm text-[#475569] mb-4">Évolution des coûts sur 30 jours</p>
+        <ResponsiveContainer width="100%" height={280}>
           <LineChart data={dailyCosts}>
-            <CartesianGrid strokeDasharray="3 3" />
+            <CartesianGrid strokeDasharray="3 3" stroke="#E0E7FF" />
             <XAxis
               dataKey="date"
-              tick={{ fontSize: 12 }}
-              tickFormatter={(v) => v.slice(8)} // "2026-03-01" → "01"
+              tick={{ fontSize: 11, fill: "#475569" }}
+              tickFormatter={(v) => v.slice(8)}
+              stroke="#E0E7FF"
             />
-            <YAxis tick={{ fontSize: 12 }} tickFormatter={(v) => `$${v}`} />
-            <Tooltip formatter={(v) => [`$${Number(v).toFixed(2)}`, "Coût"]} />
-            <Line type="monotone" dataKey="cost" stroke="#3b82f6" strokeWidth={2} dot={false} />
+            <YAxis
+              tick={{ fontSize: 11, fill: "#475569" }}
+              tickFormatter={(v) => `$${v}`}
+              stroke="#E0E7FF"
+            />
+            <Tooltip
+              contentStyle={{
+                backgroundColor: "#fff",
+                border: "1px solid #E0E7FF",
+                borderRadius: "8px",
+                fontSize: "13px",
+              }}
+              formatter={(v) => [`$${Number(v).toFixed(2)}`, "Coût"]}
+            />
+            <Line type="monotone" dataKey="cost" stroke="#6366F1" strokeWidth={2.5} dot={false} />
           </LineChart>
         </ResponsiveContainer>
       </div>
 
-      {/* Pie chart — coûts par équipe */}
-      <div className="bg-white rounded-lg shadow p-6 border border-gray-200">
-        <h2 className="text-lg font-semibold mb-4">Coûts par equipe</h2>
-        <ResponsiveContainer width="100%" height={300}>
+      <div className="bg-white rounded-xl p-6 border border-[#E0E7FF]">
+        <h2 className="text-lg font-semibold text-[#1E1B4B] mb-1">Coûts par équipe</h2>
+        <p className="text-sm text-[#475569] mb-4">Répartition mensuelle</p>
+        <ResponsiveContainer width="100%" height={280}>
           <PieChart>
             <Pie
               data={teamData}
@@ -44,15 +57,23 @@ export default function OverviewCharts({ dailyCosts, teamData }: Props) {
               nameKey="team"
               cx="50%"
               cy="50%"
-              outerRadius={100}
+              outerRadius={90}
               label={({ name, value }) => `${name}: $${value}`}
             >
               {teamData.map((_, i) => (
                 <Cell key={i} fill={COLORS[i % COLORS.length]} />
               ))}
             </Pie>
-            <Tooltip formatter={(v) => `$${Number(v).toFixed(2)}`} />
-            <Legend />
+            <Tooltip
+              contentStyle={{
+                backgroundColor: "#fff",
+                border: "1px solid #E0E7FF",
+                borderRadius: "8px",
+                fontSize: "13px",
+              }}
+              formatter={(v) => `$${Number(v).toFixed(2)}`}
+            />
+            <Legend wrapperStyle={{ fontSize: "12px", color: "#475569" }} />
           </PieChart>
         </ResponsiveContainer>
       </div>

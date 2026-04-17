@@ -9,29 +9,37 @@ export default async function ByServicePage() {
     .map((s) => ({ name: s.SK, cost: Math.round(s.totalCost * 100) / 100 }))
     .sort((a, b) => b.cost - a.cost);
 
+  const total = services.reduce((s, x) => s + x.cost, 0);
+
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-2">Coûts par service</h1>
-      <p className="text-gray-600 mb-8">Date : {date}</p>
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-[#1E1B4B]">Coûts par service</h1>
+        <p className="text-[#475569] mt-1">Date : {date}</p>
+      </div>
 
       <ServiceChart services={services} />
 
-      {/* Tableau détaillé */}
-      <div className="bg-white rounded-lg shadow mt-6">
+      <div className="bg-white rounded-xl mt-6 border border-[#E0E7FF] overflow-hidden">
         <table className="w-full">
-          <thead>
-            <tr className="border-b text-left text-sm text-gray-600">
-              <th className="p-4">Service</th>
-              <th className="p-4 text-right">Coût</th>
+          <thead className="bg-[#F5F3FF]">
+            <tr className="text-left text-xs uppercase tracking-wider text-[#475569]">
+              <th className="px-6 py-3 font-semibold">Service</th>
+              <th className="px-6 py-3 text-right font-semibold">Coût</th>
+              <th className="px-6 py-3 text-right font-semibold">%</th>
             </tr>
           </thead>
           <tbody>
-            {services.map((s) => (
-              <tr key={s.name} className="border-b last:border-0 hover:bg-gray-50">
-                <td className="p-4 font-medium">{s.name}</td>
-                <td className="p-4 text-right">${s.cost.toFixed(2)}</td>
-              </tr>
-            ))}
+            {services.map((s) => {
+              const pct = total > 0 ? (s.cost / total) * 100 : 0;
+              return (
+                <tr key={s.name} className="border-t border-[#E0E7FF] hover:bg-[#F5F3FF] transition-colors duration-150">
+                  <td className="px-6 py-4 font-medium text-[#1E1B4B]">{s.name}</td>
+                  <td className="px-6 py-4 text-right text-[#1E1B4B]">${s.cost.toFixed(2)}</td>
+                  <td className="px-6 py-4 text-right text-[#475569]">{pct.toFixed(1)}%</td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
