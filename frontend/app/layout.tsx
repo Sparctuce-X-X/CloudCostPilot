@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
+import { Suspense } from "react";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 
@@ -22,9 +23,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr" className={`${plusJakarta.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col">
-        <Navbar />
-        <main className="flex-1 max-w-7xl mx-auto w-full px-6 py-8">{children}</main>
+      <body className="min-h-dvh flex flex-col">
+        <Suspense fallback={<div className="h-16 border-b border-[#E0E7FF] bg-white" />}>
+          <Navbar />
+        </Suspense>
+        <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 md:py-8">
+          {children}
+        </main>
       </body>
     </html>
   );

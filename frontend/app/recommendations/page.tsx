@@ -1,4 +1,8 @@
 import { getRecommendations } from "@/lib/api";
+import MonthSelector from "@/components/MonthSelector";
+import { formatMonth } from "@/lib/format";
+
+const DEFAULT_MONTH = "2026-03";
 
 const severityConfig: Record<string, { bg: string; text: string; dot: string; label: string }> = {
   high: { bg: "bg-[#FEE2E2]", text: "text-[#991B1B]", dot: "bg-[#EF4444]", label: "Critique" },
@@ -6,16 +10,25 @@ const severityConfig: Record<string, { bg: string; text: string; dot: string; la
   low: { bg: "bg-[#D1FAE5]", text: "text-[#065F46]", dot: "bg-[#10B981]", label: "Faible" },
 };
 
-export default async function RecommendationsPage() {
-  const data = await getRecommendations();
+export default async function RecommendationsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ month?: string }>;
+}) {
+  const params = await searchParams;
+  const month = params.month || DEFAULT_MONTH;
+  const data = await getRecommendations(month);
 
   return (
     <div>
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-[#1E1B4B]">Recommandations</h1>
-        <p className="text-[#475569] mt-1">
-          {data.count} recommandation{data.count > 1 ? "s" : ""} active{data.count > 1 ? "s" : ""}
-        </p>
+      <div className="mb-6 md:mb-8 flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold text-[#1E1B4B]">Recommandations</h1>
+          <p className="text-sm md:text-base text-[#475569] mt-1">
+            {data.count} recommandation{data.count > 1 ? "s" : ""} active{data.count > 1 ? "s" : ""} — {formatMonth(month)}
+          </p>
+        </div>
+        <MonthSelector current={month} />
       </div>
 
       {data.count === 0 ? (

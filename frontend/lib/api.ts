@@ -69,8 +69,9 @@ export async function getCostsByTag(month: string) {
   return fetchAPI<{ month: string; tagCosts: TagCost[] }>("/costs/by-tag", { month });
 }
 
-export async function getRecommendations() {
-  return fetchAPI<{ recommendations: Recommendation[]; count: number }>("/recommendations");
+export async function getRecommendations(month?: string) {
+  const params = month ? { month } : undefined;
+  return fetchAPI<{ recommendations: Recommendation[]; count: number }>("/recommendations", params);
 }
 
 export async function getAnomalies(month: string) {

@@ -14,11 +14,11 @@ interface Props {
 
 export default function OverviewCharts({ dailyCosts, teamData }: Props) {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <div className="bg-white rounded-xl p-6 border border-[#E0E7FF]">
-        <h2 className="text-lg font-semibold text-[#1E1B4B] mb-1">Coûts journaliers</h2>
-        <p className="text-sm text-[#475569] mb-4">Évolution des coûts sur 30 jours</p>
-        <ResponsiveContainer width="100%" height={280}>
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+      <div className="bg-white rounded-xl p-4 md:p-6 border border-[#E0E7FF]">
+        <h2 className="text-base md:text-lg font-semibold text-[#1E1B4B] mb-1">Coûts journaliers</h2>
+        <p className="text-xs md:text-sm text-[#475569] mb-4">Évolution des coûts sur 30 jours</p>
+        <ResponsiveContainer width="100%" height={260}>
           <LineChart data={dailyCosts}>
             <CartesianGrid strokeDasharray="3 3" stroke="#E0E7FF" />
             <XAxis
@@ -46,10 +46,10 @@ export default function OverviewCharts({ dailyCosts, teamData }: Props) {
         </ResponsiveContainer>
       </div>
 
-      <div className="bg-white rounded-xl p-6 border border-[#E0E7FF]">
-        <h2 className="text-lg font-semibold text-[#1E1B4B] mb-1">Coûts par équipe</h2>
-        <p className="text-sm text-[#475569] mb-4">Répartition mensuelle</p>
-        <ResponsiveContainer width="100%" height={280}>
+      <div className="bg-white rounded-xl p-4 md:p-6 border border-[#E0E7FF]">
+        <h2 className="text-base md:text-lg font-semibold text-[#1E1B4B] mb-1">Coûts par équipe</h2>
+        <p className="text-xs md:text-sm text-[#475569] mb-4">Répartition mensuelle</p>
+        <ResponsiveContainer width="100%" height={260}>
           <PieChart>
             <Pie
               data={teamData}

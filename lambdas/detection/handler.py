@@ -59,12 +59,19 @@ def _publish_to_sns(sns_client, recommendations: list[dict]):
 
 def lambda_handler(event, context):
     """
-    Point d'entrée. Déclenché par EventBridge (cron quotidien).
+    Point d'entrée. Déclenché par EventBridge (cron quotidien) ou invoqué à la main.
 
-    L'event EventBridge est simple : {"source": "aws.events", ...}
-    On n'a pas besoin de son contenu — on sait juste qu'il est l'heure de scanner.
+    Paramètre optionnel dans l'event :
+      month (str, format YYYY-MM) → scanne ce mois précis.
+      Si absent, fallback sur le mois courant.
+
+    Ça permet de rejouer un mois historique (ex: après correction de données)
+    sans attendre le prochain cron et sans toucher au code.
     """
     logger.info("Detective Lambda started")
+
+    target_month = (event or {}).get("month") or datetime.now().strftime("%Y-%m")
+    logger.info(f"Scanning month: {target_month}")
 
     dynamodb = boto3.resource("dynamodb")
     ec2 = boto3.client("ec2")
@@ -74,17 +81,16 @@ def lambda_handler(event, context):
 
     # --- 1. Détection basée sur les données CUR (dans DynamoDB) ---
 
-    # Récupérer les coûts par tag du mois en cours
-    current_month = datetime.now().strftime("%Y-%m")
-    tag_items = _query_dynamodb(dynamodb, f"TAG#{current_month}")
+    # Récupérer les coûts par tag du mois ciblé
+    tag_items = _query_dynamodb(dynamodb, f"TAG#{target_month}")
     logger.info(f"Fetched {len(tag_items)} tag cost items")
 
-    untagged_recs = detect_untagged_resources(tag_items)
+    untagged_recs = detect_untagged_resources(tag_items, target_month)
     all_recommendations.extend(untagged_recs)
     logger.info(f"Untagged resources: {len(untagged_recs)} recommendations")
 
-    # Récupérer les coûts journaliers du mois en cours
-    daily_items = _query_dynamodb(dynamodb, f"DAILY#{current_month}")
+    # Récupérer les coûts journaliers du mois ciblé
+    daily_items = _query_dynamodb(dynamodb, f"DAILY#{target_month}")
     logger.info(f"Fetched {len(daily_items)} daily cost items")
 
     anomaly_recs = detect_cost_anomalies(daily_items)

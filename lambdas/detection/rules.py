@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 from decimal import Decimal
 
 
-def detect_untagged_resources(cost_items: list[dict]) -> list[dict[str, Any]]:
+def detect_untagged_resources(cost_items: list[dict], month: str) -> list[dict[str, Any]]:
     """
     Détecte les ressources qui ont un coût mais pas de tag "team".
     En FinOps, une ressource non taggée = impossible à attribuer à une équipe.
@@ -16,11 +16,12 @@ def detect_untagged_resources(cost_items: list[dict]) -> list[dict[str, Any]]:
 
     Args:
         cost_items: Items DynamoDB de type service costs (PK=DAILY#date, SK=service)
+        month: Mois au format YYYY-MM — intégré au SK pour que chaque mois ait sa
+               propre reco (sinon elles s'écraseraient entre elles lors des rescans).
 
     Returns:
         Liste de recommandations à stocker dans DynamoDB.
     """
-    # On cherche les items du tag "untagged" dans les données
     recommendations = []
     untagged_costs = {}
 
@@ -32,18 +33,18 @@ def detect_untagged_resources(cost_items: list[dict]) -> list[dict[str, Any]]:
             date = item.get("date", "")
 
             if team == "untagged":
-                # Accumuler le coût total des ressources non taggées
                 untagged_costs[date] = untagged_costs.get(date, 0) + cost
 
     if untagged_costs:
         total_untagged = sum(untagged_costs.values())
         recommendations.append({
             "PK": "RECOMMENDATION",
-            "SK": f"untagged-resources#{datetime.now().strftime('%Y-%m-%d')}",
+            "SK": f"untagged-resources#{month}",
             "type": "untagged-resources",
+            "month": month,
             "severity": "medium",
-            "title": "Ressources sans tags détectées",
-            "description": f"{len(untagged_costs)} jours avec des coûts non taggés. "
+            "title": f"Ressources sans tags ({month})",
+            "description": f"{len(untagged_costs)} jours avec des coûts non taggés en {month}. "
                           f"Total: ${total_untagged:.2f}. "
                           f"Ajoutez des tags Team/Owner pour l'attribution.",
             "estimatedWaste": Decimal(str(round(total_untagged, 2))),

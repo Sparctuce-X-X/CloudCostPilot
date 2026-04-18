@@ -102,10 +102,21 @@ def lambda_handler(event, context):
         })
 
     # ---- Route: GET /recommendations ----
-    # Retourne les recommandations actives
+    # Retourne les recommandations actives.
+    # Si ?month=YYYY-MM est fourni, filtre les recos liées à un mois (untagged).
+    # Les recos structurelles (EBS orphan, EIP unused) sont toujours retournées
+    # car elles décrivent un état "maintenant", pas un mois historique.
     elif path == "/recommendations":
         items = _query(table, "RECOMMENDATION")
+        month = params.get("month")
+        if month:
+            items = [
+                i for i in items
+                if not i.get("SK", "").startswith("untagged-resources#")
+                or i.get("SK", "").startswith(f"untagged-resources#{month}")
+            ]
         return _response(200, {
+            "month": month,
             "recommendations": items,
             "count": len(items),
         })

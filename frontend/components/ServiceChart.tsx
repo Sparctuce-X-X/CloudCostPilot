@@ -10,11 +10,11 @@ interface Props {
 
 export default function ServiceChart({ services }: Props) {
   return (
-    <div className="bg-white rounded-xl p-6 border border-[#E0E7FF]">
-      <h2 className="text-lg font-semibold text-[#1E1B4B] mb-1">Répartition par service</h2>
-      <p className="text-sm text-[#475569] mb-4">Coûts détaillés par service AWS</p>
-      <ResponsiveContainer width="100%" height={400}>
-        <BarChart data={services} layout="vertical" margin={{ left: 120 }}>
+    <div className="bg-white rounded-xl p-4 md:p-6 border border-[#E0E7FF]">
+      <h2 className="text-base md:text-lg font-semibold text-[#1E1B4B] mb-1">Répartition par service</h2>
+      <p className="text-xs md:text-sm text-[#475569] mb-4">Coûts détaillés par service AWS</p>
+      <ResponsiveContainer width="100%" height={380}>
+        <BarChart data={services} layout="vertical" margin={{ left: 90, right: 10 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#E0E7FF" />
           <XAxis
             type="number"
